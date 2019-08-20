@@ -1,14 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct 
-{
-	char desc[21];
-	int day;
-	int month;
-	int time;
-} Appointment;
+#include "projekti.h"
 
 int check_date(int day, int month, int time)
 {
@@ -192,12 +185,12 @@ Appointment *read_calendar(Appointment *calendar, char *filename)
 Appointment *parse_input(Appointment *calendar, char *input)
 {
 	char action = *input;
-	char tmp;
+	char *tmp = malloc(DESC_SIZE);
 	int r, day, month, time;
 
 	if (action == 'A') {
-		char *desc = malloc(20);
-		r = sscanf(input, "%c %s %d %d %d", &tmp, desc, &month, &day, &time);
+		char *desc = malloc(DESC_SIZE);
+		r = sscanf(input, "%s %s %d %d %d", tmp, desc, &month, &day, &time);
 		if (r < 5)
 			printf("Tapahtuman luominen epaonnistui. Syote oli vaarassa muodossa.\n");
 		else {
@@ -206,7 +199,7 @@ Appointment *parse_input(Appointment *calendar, char *input)
 		free(desc);
 		
 	} else if (action == 'D') {
-		r = sscanf(input, "%c %d %d %d", &tmp, &month, &day, &time);
+		r = sscanf(input, "%c %d %d %d", tmp, &month, &day, &time);
 		if (r < 4)
 			printf("Tapahtuman poistaminen epaonnistui. Syote oli vaarassa muodossa.\n");
 		else {
@@ -216,29 +209,30 @@ Appointment *parse_input(Appointment *calendar, char *input)
 		print_calendar(calendar);
 
 	} else if (action == 'W') {
-		if (write_calendar(calendar, "reservations.txt"))
+		if (write_calendar(calendar, FILENAME))
 			printf("Tiedoston kirjoittaminen onnistui.\n");
 		else
 			printf("Tiedoston kirjoittaminen epaonnistui.\n");
 	
 	} else if (action == 'O') {
-		calendar = read_calendar(calendar, "reservations.txt");
+		calendar = read_calendar(calendar, FILENAME);
 	} else {
 		printf("Syotetta ei tunnistettu.\n");
 	}
+	free(tmp);
 	return calendar;
 }
 
 int main(void)
 {
-	char *input = malloc(81);
+	char *input = malloc(INPUT_SIZE);
 	int r = 1;
 
 	Appointment *calendar = malloc(sizeof(Appointment));
 	calendar->desc[0] = '\0';
 
 	while (1) {
-		fgets(input, 400, stdin);
+		fgets(input, INPUT_SIZE, stdin);
 
 		if (input[0] == 'Q') {
 			free(calendar);
