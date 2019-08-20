@@ -185,6 +185,7 @@ Appointment *read_calendar(Appointment *calendar, char *filename)
 	while (fscanf(f, "%s %d %d %d", desc, &month, &day, &time) == 4) {
 		new_calendar = add_appointment(new_calendar, desc, day, month, time);
 	}
+	printf("Kalenteri luettiin tiedostosta.\n");
 	return new_calendar;
 }
 
@@ -195,13 +196,15 @@ Appointment *parse_input(Appointment *calendar, char *input)
 	int r, day, month, time;
 
 	if (action == 'A') {
-		char *desc = malloc(50);
+		char *desc = malloc(20);
 		r = sscanf(input, "%c %s %d %d %d", &tmp, desc, &month, &day, &time);
 		if (r < 5)
 			printf("Tapahtuman luominen epaonnistui. Syote oli vaarassa muodossa.\n");
 		else {
 			calendar = add_appointment(calendar, desc, day, month, time);
 		}
+		free(desc);
+		
 	} else if (action == 'D') {
 		r = sscanf(input, "%c %d %d %d", &tmp, &month, &day, &time);
 		if (r < 4)
@@ -228,16 +231,18 @@ Appointment *parse_input(Appointment *calendar, char *input)
 
 int main(void)
 {
-	char *input = malloc(400);
+	char *input = malloc(81);
 	int r = 1;
 
 	Appointment *calendar = malloc(sizeof(Appointment));
+	calendar->desc[0] = '\0';
 
 	while (1) {
 		fgets(input, 400, stdin);
 
 		if (input[0] == 'Q') {
 			free(calendar);
+			free(input);
 			printf("Ohjelman suoritus lopetetaan.\n");
 			break;
 		} else if (r == 0) {
