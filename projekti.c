@@ -79,7 +79,7 @@ void print_calendar(Appointment *calendar)
 		printf("Kalenteri on tyhja.\n");
 	else {
 		while (calendar->desc[0] != '\0') {
-			printf("%s %02d.%02d. klo %02d\n", 
+			printf("%-20s %02d.%02d. klo %02d\n", 
 				calendar->desc,
 				calendar->day,
 				calendar->month,
@@ -162,13 +162,15 @@ int write_calendar(Appointment *calendar, char *filename)
 
 Appointment *read_calendar(Appointment *calendar, char *filename)
 {
-	free(calendar);
-
 	FILE *f;
 	f = fopen(filename, "r");
 
-	if (f == NULL)
-		return NULL;
+	// Handle non existent file
+	if (f == NULL) {
+		printf("Tiedostoa %s ei loytynyt.\n", filename);
+		return calendar;
+	}
+	free(calendar);
 
 	Appointment *new_calendar = malloc(sizeof(Appointment));
 	new_calendar->desc[0] = '\0';
@@ -188,6 +190,7 @@ Appointment *parse_input(Appointment *calendar, char *input)
 	char *tmp = malloc(DESC_SIZE);
 	int r, day, month, time;
 
+	// Handle adding Appointment
 	if (action == 'A') {
 		char *desc = malloc(DESC_SIZE);
 		r = sscanf(input, "%s %s %d %d %d", tmp, desc, &month, &day, &time);
@@ -197,7 +200,8 @@ Appointment *parse_input(Appointment *calendar, char *input)
 			calendar = add_appointment(calendar, desc, day, month, time);
 		}
 		free(desc);
-		
+	
+	// Handle deleting Appointment
 	} else if (action == 'D') {
 		r = sscanf(input, "%c %d %d %d", tmp, &month, &day, &time);
 		if (r < 4)
@@ -205,20 +209,41 @@ Appointment *parse_input(Appointment *calendar, char *input)
 		else {
 			calendar = delete_appointment(calendar, day, month, time);
 		}
+
+	// Handle printing calendar
 	} else if (action == 'L') {
 		print_calendar(calendar);
 
+	// Handle writing to file
 	} else if (action == 'W') {
-		if (write_calendar(calendar, FILENAME))
-			printf("Tiedoston kirjoittaminen onnistui.\n");
-		else
-			printf("Tiedoston kirjoittaminen epaonnistui.\n");
+		char *filename = malloc(FILENAME_SIZE);
+		r = sscanf(input, "%s %s", tmp, filename);
+		if (r == 2) {
+			if (write_calendar(calendar, filename))
+				printf("Tiedoston kirjoittaminen onnistui.\n");
+			else
+				printf("Tiedoston kirjoittaminen epaonnistui.\n");
+		} else {
+			printf("Syote 'W' tunnistettiin. Anna syote kuitenkin muodossa: 'W tiedostonimi'\n");
+		}
+		free(filename);
 	
+	// Handle reading from file
 	} else if (action == 'O') {
-		calendar = read_calendar(calendar, FILENAME);
+		char *filename = malloc(FILENAME_SIZE);
+		r = sscanf(input, "%s %s", tmp, filename);
+		if (r == 2) {
+			calendar = read_calendar(calendar, filename);
+		} else {
+			printf("Syote 'O' tunnistettiin. Anna syote kuitenkin muodossa: 'O tiedostonimi'\n");
+		}
+		free(filename);
+	
+	// Handle unknown input	
 	} else {
 		printf("Syotetta ei tunnistettu.\n");
 	}
+
 	free(tmp);
 	return calendar;
 }
