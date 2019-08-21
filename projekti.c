@@ -144,8 +144,9 @@ int write_calendar(Appointment *calendar, char *filename)
 {
 	FILE *f;
 	f = fopen(filename, "w");
-	if (f == NULL)
+	if (f == NULL) {
 		return 0;
+	}
 
 	int count = count_calendar(calendar);
 	int i;
@@ -181,6 +182,7 @@ Appointment *read_calendar(Appointment *calendar, char *filename)
 		new_calendar = add_appointment(new_calendar, desc, day, month, time);
 	}
 	printf("Kalenteri luettiin tiedostosta.\n");
+	fclose(f);
 	return new_calendar;
 }
 
