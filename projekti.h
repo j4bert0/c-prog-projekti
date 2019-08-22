@@ -33,6 +33,8 @@ typedef struct
 	int time;
 } Appointment;
 
+// Counts number whitespaces in string
+int count_whitespace(char *str);
 
 // Check if given date is of valid form
 int check_date(int day, int month, int time);
