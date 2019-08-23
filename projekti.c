@@ -269,7 +269,6 @@ Appointment *parse_input(Appointment *calendar, char *input)
 int main(void)
 {
 	char *input = malloc(INPUT_SIZE);
-	int r = 1;
 
 	Appointment *calendar = malloc(sizeof(Appointment));
 	calendar->desc[0] = '\0';
@@ -289,8 +288,7 @@ int main(void)
 			free(input);
 			printf("Ohjelman suoritus lopetetaan.\n");
 			break;
-		} else if (r == 0) {
-			printf("Anna syote\n");
+			
 		} else {
 			calendar = parse_input(calendar, input);
 		}
