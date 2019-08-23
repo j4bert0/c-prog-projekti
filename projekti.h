@@ -8,13 +8,11 @@
 *		- Calendar handling functions are preferably of form:
 *		  	- f(calendar) = new calendar
 *
-*	- Commandline inputs of form 'A desc 1 1 1 1 ... 1' (too many inputs) are not considered wrong
-*		- The line is parsed and only the expected number of params. are considered
-*
 *	- Program (memory) fails when:
 *	 	- Commandline input length > INPUT_SIZE-1
 *		- Appointment desc. length > DESC_SIZE-1 (ie. in command: 'A desc 1 1 1')
 *		- Filename length > FILENAME_SIZE-1 (ie. in commands 'W filename' & 'O filename')
+*		- Action char (ie. 'A'/'D'...) is given as string (incorrectly) and the string length > DESC_SIZE-1
 *
 *	- Otherwise the program should run smoothly =D
 *
@@ -33,7 +31,7 @@ typedef struct
 	int time;
 } Appointment;
 
-// Counts number whitespaces in string
+// Counts number whitespaces in a string
 int count_whitespace(char *str);
 
 // Check if given date is of valid form

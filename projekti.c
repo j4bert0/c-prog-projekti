@@ -200,15 +200,17 @@ Appointment *read_calendar(Appointment *calendar, char *filename)
 Appointment *parse_input(Appointment *calendar, char *input)
 {
 	char action = *input;
-	char c;
+	char *tmp = malloc(DESC_SIZE); // action char mem. for input format checks
 	int r, day, month, time;
 
 	// Handle adding Appointment
 	if (action == 'A') {
 		char *desc = malloc(DESC_SIZE);
-		r = sscanf(input, "%c %s %d %d %d", &c, desc, &month, &day, &time);
-		if ((r != 5) | (count_whitespace(input) != 4))
-			printf("Tapahtuman luominen epaonnistui. Syote oli vaarassa muodossa.\n");
+		r = sscanf(input, "%s %s %d %d %d", tmp, desc, &month, &day, &time);
+		// Incorrect input handled:
+		// (not enough params.) | (incorrect format) | (action char in incorrect format)
+		if ((r != 5) | (count_whitespace(input) != 4) | (strlen(tmp) > 1))
+			printf("Syote 'A' tunnistettiin. Anna syote kuitenkin muodossa: 'A desc month day time'.\n");
 		else {
 			calendar = add_appointment(calendar, desc, day, month, time);
 		}
@@ -216,9 +218,9 @@ Appointment *parse_input(Appointment *calendar, char *input)
 	
 	// Handle deleting Appointment
 	} else if (action == 'D') {
-		r = sscanf(input, "%c %d %d %d", &c, &month, &day, &time);
-		if ((r != 4) | (count_whitespace(input) != 3))
-			printf("Tapahtuman poistaminen epaonnistui. Syote oli vaarassa muodossa.\n");
+		r = sscanf(input, "%s %d %d %d", tmp, &month, &day, &time);
+		if ((r != 4) | (count_whitespace(input) != 3) | (strlen(tmp) > 1))
+			printf("Syote 'D' tunnistettiin. Anna syote kuitenkin muodossa: 'D month day time'.\n");
 		else {
 			calendar = delete_appointment(calendar, day, month, time);
 		}
@@ -233,8 +235,8 @@ Appointment *parse_input(Appointment *calendar, char *input)
 	// Handle writing to file
 	} else if (action == 'W') {
 		char *filename = malloc(FILENAME_SIZE);
-		r = sscanf(input, "%c %s", &c, filename);
-		if ((r != 2) | (count_whitespace(input) != 1)) {
+		r = sscanf(input, "%s %s", tmp, filename);
+		if ((r != 2) | (count_whitespace(input) != 1) | (strlen(tmp) > 1)) {
 			printf("Syote 'W' tunnistettiin. Anna syote kuitenkin muodossa: 'W tiedostonimi'\n");
 		} else {
 			if (write_calendar(calendar, filename))
@@ -247,11 +249,11 @@ Appointment *parse_input(Appointment *calendar, char *input)
 	// Handle reading from file
 	} else if (action == 'O') {
 		char *filename = malloc(FILENAME_SIZE);
-		r = sscanf(input, "%c %s", &c, filename);
-		if ((r == 2) && (count_whitespace(input) == 1)) {
-			calendar = read_calendar(calendar, filename);
-		} else {
+		r = sscanf(input, "%s %s", tmp, filename);
+		if ((r != 2) | (count_whitespace(input) != 1) | (strlen(tmp) > 1)) {
 			printf("Syote 'O' tunnistettiin. Anna syote kuitenkin muodossa: 'O tiedostonimi'\n");
+		} else {
+			calendar = read_calendar(calendar, filename);
 		}
 		free(filename);
 	
@@ -260,6 +262,7 @@ Appointment *parse_input(Appointment *calendar, char *input)
 		printf("Syotetta ei tunnistettu.\n");
 	}
 
+	free(tmp);
 	return calendar;
 }
 
